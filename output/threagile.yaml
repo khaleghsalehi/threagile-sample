@@ -1,0 +1,516 @@
+threagile_version: 1.0.0
+
+
+
+title: Innovera Payment System
+
+date: 2022-05-14
+
+author:
+  name: Khalegh Salehi Aghdam
+  homepage: https://innovera.ir
+
+
+
+
+management_summary_comment: >
+  Innovera Payment System Threat Modeling
+
+business_criticality: critical
+
+
+
+business_overview:
+  description: Innovera Payment System
+  images:
+
+
+technical_overview:
+  description: <i>Payment System </in> technical overview
+  images:
+    - technical-asset.png: Technical Overview
+
+
+
+questions:
+  MiTM Attack?: "Can an attacker detect and manipulate traffic between the user and the inside of the API innovera (in mobile applications)?"
+  Are there bot-based attacks and the possibility of abusing the service? ?: >
+    No. It is not easily possible. But an attacker can spend time. By using fourth-generation bots like headless chrome to simulate real user behavior ( browser).
+
+
+
+
+abuse_cases:
+  BOT activity and DDoS attack: As a hacker, I want to destroy the QoS  and I also want to call the API by the robot.
+
+
+security_requirements:
+  BOT activites detection and protection: The server side must detect and block robot activity
+  Input validation: The API must verify all input files (MIME type) from the client, only PDF format is acceptable.
+
+
+tags_available:
+  - web-browser
+  - mobile-application
+  - api-gateway
+  - web-application
+  - nginx
+  - linux-server
+  - ssh-service
+  - database-postgresql
+  - vmware
+  - waf
+
+
+
+
+data_assets:
+
+  Customer Informations:
+    id: innovera-customer-information
+    description: customer information
+    usage: business
+    tags: null
+    origin: null
+    owner: Innovera CRM team
+    quantity: many
+    confidentiality: confidential
+    integrity: critical
+    justification_cia_rating: null
+    availability: critical
+  Customer Contracts:
+    id: innovera-customer-contracts
+    description: customer contract (PDF)
+    usage: business
+    tags:
+    origin: Some Origin
+    owner: Innovera Contract Manager
+    quantity: many
+    confidentiality: confidential
+    integrity: critical
+    availability: operational
+    justification_cia_rating: contartc data contain customers information
+
+
+
+technical_assets:
+
+  Mobile Application:
+    id: innovera-mobile-application
+    description: Innovera mobile application
+    type: process
+    usage: business
+    used_as_client_by_human: true
+    out_of_scope: false
+    justification_out_of_scope: null
+    size: application
+    technology: mobile-app
+    tags: null
+    internet: true
+    machine: physical
+    encryption: data-with-asymmetric-shared-key
+    owner: Development Team
+    confidentiality: confidential
+    integrity: important
+    availability: important
+    justification_cia_rating: null
+    multi_tenant: false
+    redundant: false
+    custom_developed_parts: false
+    data_assets_processed:
+      - innovera-customer-contracts
+      - innovera-customer-information
+    data_assets_stored: null
+    data_formats_accepted:
+      - file
+      - json
+      - serialization
+    communication_links:
+      Internet Public Traffic:
+        target: Innovera-WAF
+        description: mobile app connection to innovera api gatway
+        protocol: https
+        authentication: token
+        authorization: none
+        tags:
+        vpn: false
+        ip_filtered: false
+        readonly: false
+        usage: business
+        data_assets_sent:
+          - innovera-customer-information
+          - innovera-customer-contracts
+        data_assets_received:
+          - innovera-customer-information
+          - innovera-customer-contracts
+  Web Browser:
+    id: Web-browser
+    description: Web broser that used by customers
+    availability: operational
+    integrity: operational
+    confidentiality: public
+    owner: End user
+    tags: null
+    usage: business
+    justification_cia_rating: null
+    data_formats_accepted:
+      - json
+      - serialization
+      - file
+      - xml
+      - csv
+    data_assets_stored: null
+    data_assets_processed:
+      - innovera-customer-information
+      - innovera-customer-contracts
+    custom_developed_parts: false
+    redundant: true
+    multi_tenant: false
+    encryption: data-with-symmetric-shared-key
+    machine: virtual
+    internet: true
+    technology: browser
+    size: application
+    justification_out_of_scope: null
+    out_of_scope: false
+    used_as_client_by_human: true
+    type: process
+    communication_links:
+      Public Internet Link:
+        description: Internet Link
+        usage: business
+        tags: null
+        authentication: session-id
+        authorization: none
+        data_assets_received:
+          - innovera-customer-information
+          - innovera-customer-contracts
+        data_assets_sent:
+          - innovera-customer-information
+          - innovera-customer-contracts
+        ip_filtered: false
+        protocol: https
+        readonly: false
+        target: Innovera-WAF
+        vpn: false
+  Web Application Firewall:
+    id: Innovera-WAF
+    description: Web Application Firewall (Barracuda)
+    availability: critical
+    integrity: critical
+    confidentiality: confidential
+    owner: Innovera Security team
+    tags: null
+    usage: devops
+    justification_cia_rating: null
+    data_formats_accepted: null
+    data_assets_stored: null
+    data_assets_processed:
+    custom_developed_parts: false
+    redundant: true
+    multi_tenant: false
+    encryption: data-with-symmetric-shared-key
+    machine: physical
+    internet: true
+    technology: waf
+    size: service
+    justification_out_of_scope: null
+    out_of_scope: false
+    used_as_client_by_human: false
+    type: process
+    communication_links:
+      Link to Nginx:
+        description: Internet Link
+        usage: business
+        tags: null
+        authentication: session-id
+        authorization: none
+        data_assets_received:
+        data_assets_sent:
+        ip_filtered: false
+        protocol: http
+        readonly: false
+        target: Innovera-Web-Server-Nginx
+        vpn: false
+      Linke to API gateway:
+        description: Internet Link
+        usage: business
+        tags: null
+        authentication: session-id
+        authorization: none
+        data_assets_received:
+        data_assets_sent:
+        ip_filtered: false
+        protocol: http
+        readonly: false
+        target: innovera-api-gatway-service
+        vpn: false
+  Nginx Web Server:
+    id: Innovera-Web-Server-Nginx
+    description: Web Server (Reverse Proxy)
+    availability: operational
+    integrity: operational
+    confidentiality: public
+    owner: Innovera SRE team
+    tags: null
+    usage: devops
+    justification_cia_rating: null
+    data_formats_accepted:
+      - json
+      - serialization
+      - file
+      - xml
+      - csv
+    data_assets_stored: null
+    data_assets_processed:
+    custom_developed_parts: false
+    redundant: true
+    multi_tenant: false
+    encryption: data-with-symmetric-shared-key
+    machine: physical
+    internet: true
+    technology: browser
+    size: application
+    justification_out_of_scope: null
+    out_of_scope: false
+    used_as_client_by_human: true
+    type: process
+    communication_links:
+      Public Internet Link:
+        description: Internet Link
+        usage: business
+        tags: null
+        authentication: session-id
+        authorization: none
+        data_assets_received:
+        data_assets_sent:
+        ip_filtered: false
+        protocol: http
+        readonly: false
+        target: Innovera-Application-Service
+        vpn: false
+  Application Service:
+    id: Innovera-Application-Service
+    description: Innovera Application Service (MVC / Spring boot)
+    availability: critical
+    integrity: critical
+    confidentiality: confidential
+    owner: Innovera Developemnt Team
+    tags: null
+    usage: business
+    justification_cia_rating: null
+    data_formats_accepted:
+      - json
+      - serialization
+      - file
+      - xml
+      - csv
+    data_assets_stored: null
+    data_assets_processed: null
+    custom_developed_parts: false
+    redundant: true
+    multi_tenant: false
+    encryption: data-with-symmetric-shared-key
+    machine: virtual
+    internet: true
+    technology: web-application
+    size: service
+    justification_out_of_scope: null
+    out_of_scope: false
+    used_as_client_by_human: false
+    type: process
+    communication_links:
+      Local Network Area:
+        description: Local Area Network
+        usage: business
+        tags: null
+        authentication: session-id
+        authorization: none
+        data_assets_received:
+          - innovera-customer-information
+          - innovera-customer-contracts
+        data_assets_sent:
+          - innovera-customer-information
+          - innovera-customer-contracts
+        diagram_tweak_constraint: false
+        ip_filtered: false
+        protocol: https
+        readonly: false
+        target: innovera-api-gatway-service
+        vpn: false
+  API Gatway Service:
+    id: innovera-api-gatway-service
+    description: innovera api gatway service developed by java (spring boot framework)
+    type: process # values: external-entity, process, datastore
+    usage: devops # values: business, devops
+    used_as_client_by_human: false
+    out_of_scope: false
+    justification_out_of_scope:
+    size: service # values: system, service, application, component
+    technology: web-service-rest # values: see help
+    tags:
+    internet: true
+    machine: virtual # values: physical, virtual, container, serverless
+    encryption: data-with-asymmetric-shared-key # values: none, transparent, data-with-symmetric-shared-key, data-with-asymmetric-shared-key, data-with-enduser-individual-key
+    owner: Innovera Development Team
+    confidentiality: confidential # values: public, internal, restricted, confidential, strictly-confidential
+    integrity: critical # values: archive, operational, important, critical, mission-critical
+    availability: critical # values: archive, operational, important, critical, mission-critical
+    justification_cia_rating: null
+    multi_tenant: false
+    redundant: false
+    custom_developed_parts: true
+    data_assets_processed: # sequence of IDs to reference
+      - innovera-customer-information
+      - innovera-customer-contracts
+    data_assets_stored:  # sequence of IDs to reference
+    data_formats_accepted: # sequence of formats like: json, xml, serialization, file, csv
+      - json
+      - file
+      - serialization
+    communication_links:
+      Public Internet Traffic:
+        target: Innovera-Database-Server
+        description: Some Description
+        protocol: https # values: see help
+        authentication: token # values: none, credentials, session-id, token, client-certificate, two-factor
+        authorization: none # values: none, technical-user, enduser-identity-propagation
+        tags:
+        vpn: false
+        ip_filtered: false
+        readonly: false
+        usage: business # values: business, devops
+        data_assets_sent: # sequence of IDs to reference
+          - innovera-customer-information
+          - innovera-customer-contracts
+        data_assets_received:
+          - innovera-customer-information
+          - innovera-customer-contracts
+  DataBase Server:
+    id: Innovera-Database-Server
+    description: Innovera Databse Server
+    availability: critical
+    integrity: critical
+    confidentiality: confidential
+    owner: Innovera SRE Team
+    tags: null
+    usage: devops
+    justification_cia_rating: null
+    data_formats_accepted:
+      - json
+      - serialization
+      - file
+      - xml
+      - csv
+    data_assets_stored: null
+    data_assets_processed: null
+    custom_developed_parts: false
+    redundant: true
+    multi_tenant: false
+    encryption: data-with-symmetric-shared-key
+    machine: virtual
+    internet: false
+    technology: database
+    size: service
+    justification_out_of_scope: null
+    out_of_scope: false
+    used_as_client_by_human: false
+    type: datastore
+
+
+trust_boundaries:
+
+  DMZ Boundary:
+    id: public-internet
+    description: Internet network
+    type: execution-environment
+    tags:
+    technical_assets_inside:
+      - Innovera-WAF
+      - innovera-api-gatway-service
+      - Innovera-Application-Service
+      - Innovera-Web-Server-Nginx
+    trust_boundaries_nested:
+  Private Lan:
+    id: private-network
+    description: innovera private network
+    type: network-virtual-lan
+    tags:
+    technical_assets_inside:
+      - Innovera-Database-Server
+    trust_boundaries_nested: null
+  Innovera Private Cloud:
+    id: Innovera-Private-Cloud
+    tags: null
+    trust_boundaries_nested:
+      - public-internet
+      - private-network
+    technical_assets_inside: null
+    type: network-cloud-provider
+    description: Innovera Private Cloud
+  Internet Boundry:
+    id: Internet-Boundry
+    description: Intrnet Link
+    type: network-cloud-provider
+    technical_assets_inside:
+      - Web-browser
+      - innovera-mobile-application
+    tags: null
+    trust_boundaries_nested: null
+
+
+shared_runtimes:
+  WebApp and REST API Virtualization:
+    id: Webapp-ResetApi-Virtualization
+    description: WebApp ans REST API Virtualization
+    tags:
+      - vmware
+    technical_assets_running: # sequence of IDs to reference
+      - innovera-api-gatway-service
+
+
+individual_risk_categories:
+  Service Disaster:
+    id: Innovera-Service-Disater
+    description: Service disater in the case of force module incident
+    impact: QoS
+    asvs: V0 - Denial of Service
+    cheat_sheet: https://cheatsheetseries.owasp.org/cheatsheets/Denial_of_Service_Cheat_Sheet.html
+    action: Some text describing the action...
+    mitigation: Service HA
+    check: distribute tiny agent ping
+    function: business-side
+    stride: denial-of-service
+    detection_logic: by pinging service
+    risk_assessment: identifed by Innovera red team during local benchmark
+    false_positives: no, agents are dirstbuted in multi location
+    model_failure_possible_reason: false
+    cwe: 1234
+    risks_identified:
+      <b>Service Disater</b> at <b>Innovera API gateway</b>:
+        severity: critical
+        exploitation_likelihood: likely
+        exploitation_impact: high
+        data_breach_probability: probable
+        data_breach_technical_assets:
+          - innovera-api-gatway-service
+          - Innovera-Database-Server
+        most_relevant_data_asset:
+        most_relevant_technical_asset: innovera-api-gatway-service
+        most_relevant_communication_link:
+        most_relevant_trust_boundary:
+        most_relevant_shared_runtime:
+
+
+
+risk_tracking:
+  missing-build-infrastructure@*: # wildcards "*" between the @ characters are possible
+    status: mitigated # values: unchecked, in-discussion, accepted, in-progress, mitigated, false-positive
+    justification: The hardening measures were implemented and checked
+    ticket: INRM-1000-1
+    date: 2022-05-12
+    checked_by: Khalegh Salehi
+
+
+
+
